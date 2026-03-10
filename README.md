@@ -18,7 +18,6 @@ Database: MongoDB
 
 ## Project Structure
 
-<!-- 
 digital-blood-bank
 │
 ├── client
@@ -32,8 +31,7 @@ digital-blood-bank
 │   └── server.js
 │
 ├── README.md
-└── .gitignore 
--->
+└── .gitignore
 
 ## Installation
 
