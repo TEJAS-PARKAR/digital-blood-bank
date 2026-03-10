@@ -30,3 +30,30 @@ exports.registerUser = async (req, res) => {
 
   }
 };
+
+exports.getDonorsByBloodGroup = async (req, res) => {
+  try {
+
+    const bloodGroup = req.params.group;
+
+    const donors = await User.find({
+      bloodGroup: bloodGroup,
+      role: "donor"
+    });
+
+    res.status(200).json({
+      success: true,
+      count: donors.length,
+      donors
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: "Error fetching donors",
+      error: error.message
+    });
+
+  }
+};
