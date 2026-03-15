@@ -3,10 +3,13 @@ const router = express.Router();
 
 const {
   registerUser,
-  getDonorsByBloodGroup
+  getDonorsByBloodGroup,
+  getAllDonors
 } = require("../controllers/userController");
 
 router.post("/register", registerUser);
+
+router.get("/donors", getAllDonors);
 
 router.get("/blood/:group", getDonorsByBloodGroup);
 

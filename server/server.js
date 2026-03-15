@@ -27,3 +27,15 @@ app.listen(PORT, () => {
 
 const userRoutes = require("./routes/userRoutes");
 app.use("/api/users", userRoutes);
+
+const requestRoutes = require("./routes/requestRoutes");
+app.use("/api/requests", requestRoutes);
+
+const authRoutes = require("./routes/authRoutes");
+app.use("/api/auth", authRoutes);
+
+const errorHandler = require("./middleware/errorMiddleware");
+app.use(errorHandler); // Use the error handling middleware
+
+const morgan = require("morgan");
+app.use(morgan("dev"));

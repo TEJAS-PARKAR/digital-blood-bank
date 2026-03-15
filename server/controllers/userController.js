@@ -57,3 +57,27 @@ exports.getDonorsByBloodGroup = async (req, res) => {
 
   }
 };
+
+exports.getAllDonors = async (req, res) => {
+
+  try {
+
+    const donors = await User.find({ role: "donor" });
+
+    res.status(200).json({
+      success: true,
+      count: donors.length,
+      donors
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: "Error fetching donors",
+      error: error.message
+    });
+
+  }
+
+};
