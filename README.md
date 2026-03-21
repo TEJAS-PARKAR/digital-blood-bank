@@ -1,73 +1,69 @@
-# Digital Blood Bank
+# RaktRakshak
 
-A full-stack web application that connects blood donors with patients and hospitals during emergencies. The system allows donors to register, users to search for donors by blood group and city, and hospitals or patients to create blood requests.
+**RaktRakshak – Connecting Donors with Lives in Need**
 
-This project is built using **React for the frontend**, **Node.js + Express for the backend**, and **MongoDB Atlas for the database**.
+RaktRakshak is a full-stack **Digital Blood Bank Management System** designed to connect blood donors with patients and hospitals during emergencies. The platform allows donors to register, recipients to request blood, and administrators to manage requests efficiently.
 
----
-
-# Tech Stack
-
-Frontend
-
-* React
-
-Backend
-
-* Node.js
-* Express.js
-
-Database
-
-* MongoDB Atlas
-
-Other Tools
-
-* Postman (API testing)
-* Git & GitHub (version control)
-* Morgan (API logging)
-* Nodemon (development server)
+The goal of this project is to reduce the time required to find compatible blood donors and make blood donation more accessible using modern web technologies.
 
 ---
 
 # Features
 
-### Donor Management
+### Donor
 
-* Register new donors
-* Store donor information in database
+* Register as a blood donor
+* Provide blood group, city, and contact details
+* View active blood requests
+* Be discoverable through donor search
+
+### Recipient
+
 * Search donors by blood group
+* Create blood requests for patients
+* Contact available donors
+
+### Admin
+
 * View all registered donors
-
-### Blood Request Management
-
-* Create blood request for patients
-* Store hospital and contact information
-* View all blood requests
-* Update request status (pending → fulfilled)
-
-### Authentication
-
-* Basic login using phone number
-* Role based users (donor / recipient / admin)
-
-### Backend Improvements
-
-* Centralized error handling middleware
-* API request logging using Morgan
-* Modular project structure (controllers, routes, models)
+* Monitor blood requests
+* Update request status (Pending → Fulfilled)
+* Manage the system
 
 ---
 
-# Project Structure
+# Tech Stack
+
+### Frontend
+
+* React
+
+### Backend
+
+* Node.js
+* Express.js
+
+### Database
+
+* MongoDB Atlas
+
+### Tools
+
+* Git & GitHub
+* Postman (API testing)
+* Morgan (API logging)
+* Nodemon (development server)
+
+---
+
+# Project Architecture
 
 ```
-digital-blood-bank
+RaktRakshak
 │
-├── client
-│   └── (React frontend – to be developed)
+├── client                # React Frontend
 │
-├── server
+├── server                # Node.js Backend
 │   │
 │   ├── config
 │   │   └── db.js
@@ -91,24 +87,23 @@ digital-blood-bank
 │   │
 │   ├── .env
 │   ├── server.js
-│   ├── package.json
-│   └── package-lock.json
+│   └── package.json
 │
-├── .gitignore
-└── README.md
+├── README.md
+└── .gitignore
 ```
 
 ---
 
 # API Endpoints
 
-### User APIs
+## User APIs
 
 Register User
 
 POST /api/users/register
 
-Example Request:
+Example Request
 
 ```
 {
@@ -132,7 +127,7 @@ Find Donors by Blood Group
 
 GET /api/users/blood/:group
 
-Example:
+Example
 
 ```
 GET /api/users/blood/O+
@@ -140,13 +135,13 @@ GET /api/users/blood/O+
 
 ---
 
-### Blood Request APIs
+# Blood Request APIs
 
 Create Blood Request
 
 POST /api/requests
 
-Example Request:
+Example Request
 
 ```
 {
@@ -160,7 +155,7 @@ Example Request:
 
 ---
 
-Get All Blood Requests
+Get All Requests
 
 GET /api/requests
 
@@ -170,27 +165,25 @@ Update Request Status
 
 PUT /api/requests/:id
 
-Used to mark request as **fulfilled**.
+Used by admin to mark a request as **fulfilled**.
 
 ---
 
-### Authentication API
+# Authentication
 
 Login User
 
 POST /api/auth/login
 
-Example Request:
+Example Request
 
 ```
 {
   "phone": "9876543210"
 }
-```
-
 ---
 
-# Installation and Setup
+# Installation
 
 Clone the repository
 
@@ -198,13 +191,17 @@ Clone the repository
 git clone https://github.com/TEJAS-PARKAR/digital-blood-bank.git
 ```
 
-Move into project folder
+Move into the project
 
 ```
 cd digital-blood-bank
 ```
 
-Move to backend folder
+---
+
+## Backend Setup
+
+Navigate to server folder
 
 ```
 cd server
@@ -223,7 +220,7 @@ PORT=5000
 MONGO_URI=your_mongodb_connection_string
 ```
 
-Start development server
+Start backend server
 
 ```
 npm run dev
@@ -237,33 +234,50 @@ http://localhost:5000
 
 ---
 
-# Testing APIs
+## Frontend Setup
 
-Use **Postman** to test APIs.
+Navigate to client folder
 
-Test endpoints such as:
+```
+cd client
+```
 
-* Register donor
-* Get donor list
-* Create blood request
-* Update request status
-* Login user
+Install dependencies
+
+```
+npm install
+```
+
+Run frontend
+
+```
+npm run dev
+```
+
+Frontend runs on
+
+```
+http://localhost:5173
+```
 
 ---
 
 # Future Improvements
 
-* React frontend interface
-* Admin dashboard
+* Google Authentication
+* Admin dashboard UI
 * Donor availability status
+* Location-based donor search
 * Email / SMS notifications
-* JWT authentication
 * Deployment on AWS
 
+---
 
-Author
+# Author
 
-Tejas Parkar
+**Tejas Parkar**
 
-GitHub:
+GitHub
 https://github.com/TEJAS-PARKAR
+
+---
