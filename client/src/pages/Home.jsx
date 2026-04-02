@@ -1,8 +1,8 @@
 function Home() {
   return (
-    <div>
+    <div className="container">
       <h1>RaktRakshak</h1>
-      <p>A Digital Blood Bank Management System</p>
+      <p>Connecting Donors with Lives in Need</p>
     </div>
   );
 }

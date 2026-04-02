@@ -5,23 +5,20 @@ import Register from "./pages/Register";
 import FindDonor from "./pages/FindDonor";
 import RequestBlood from "./pages/RequestBlood";
 import AdminDashboard from "./pages/AdminDashboard";
+import Navbar from "./components/Navbar";
 
 function App() {
   return (
     <BrowserRouter>
 
+      <Navbar />
+
       <Routes>
-
         <Route path="/" element={<Home />} />
-
         <Route path="/register" element={<Register />} />
-
         <Route path="/find-donor" element={<FindDonor />} />
-
         <Route path="/request-blood" element={<RequestBlood />} />
-
         <Route path="/admin" element={<AdminDashboard />} />
-
       </Routes>
 
     </BrowserRouter>
