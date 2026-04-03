@@ -1,52 +1,47 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 function Navbar() {
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await fetch("http://localhost:5000/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Logout error", err);
+    }
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/");
+    window.location.reload(); // to update state
+  };
+
   return (
-    <nav style={styles.nav}>
+    <nav className="navbar">
+      <h2 className="logo">RaktRakshak</h2>
 
-      <h2 style={styles.logo}>RaktRakshak</h2>
-
-      <div style={styles.links}>
-        <NavLink to="/" className={({ isActive }) => isActive ? "active" : ""}>
-          Home
-        </NavLink>
-
-        <NavLink to="/register" className={({ isActive }) => isActive ? "active" : ""}>
-          Register
-        </NavLink>
-
-        <NavLink to="/find-donor" className={({ isActive }) => isActive ? "active" : ""}>
-          Find Donor
-        </NavLink>
-
-        <NavLink to="/request-blood" className={({ isActive }) => isActive ? "active" : ""}>
-          Request
-        </NavLink>
-
-        <NavLink to="/admin" className={({ isActive }) => isActive ? "active" : ""}>
-          Admin
-        </NavLink>
+      <div className="links">
+        {token ? (
+          <>
+            <NavLink to="/" className="nav-link">Home</NavLink>
+            <NavLink to="/find-donor" className="nav-link">Find Donor</NavLink>
+            <NavLink to="/request-blood" className="nav-link">Request</NavLink>
+            {user?.role === "admin" && (
+              <NavLink to="/admin" className="nav-link">Admin</NavLink>
+            )}
+            <button onClick={handleLogout} className="logout-btn">Logout</button>
+          </>
+        ) : (
+          <NavLink to="/login" className="nav-link">Login</NavLink>
+        )}
       </div>
-
     </nav>
   );
 }
-const styles = {
-  nav: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    background: "#e63946",
-    padding: "10px 20px",
-    color: "white"
-  },
-  logo: {
-    margin: 0
-  },
-  links: {
-    display: "flex",
-    gap: "15px"
-  }
-};
 
 export default Navbar;

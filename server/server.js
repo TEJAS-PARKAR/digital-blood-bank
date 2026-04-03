@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
 const mongoose = require("mongoose")
 
@@ -11,7 +12,11 @@ mongoose.connect(process.env.MONGO_URI)
 .catch(err => console.log("Database Error:", err))
 
 // Middleware
-app.use(cors()); // Enable CORS for all routes
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+})); // Enable CORS for frontend with credentials
+app.use(cookieParser());
 app.use(express.json()); // Parse JSON bodies
 
 // Test Route
@@ -19,17 +24,14 @@ app.get("/", (req, res) => {
   res.send("Blood Bank API Running");
 });
 
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
 const userRoutes = require("./routes/userRoutes");
 app.use("/api/users", userRoutes);
 
 const requestRoutes = require("./routes/requestRoutes");
 app.use("/api/requests", requestRoutes);
+
+const passport = require("./config/passport");
+app.use(passport.initialize());
 
 const authRoutes = require("./routes/authRoutes");
 app.use("/api/auth", authRoutes);
@@ -39,3 +41,9 @@ app.use(errorHandler); // Use the error handling middleware
 
 const morgan = require("morgan");
 app.use(morgan("dev"));
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

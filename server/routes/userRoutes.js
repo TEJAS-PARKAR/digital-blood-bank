@@ -4,10 +4,15 @@ const router = express.Router();
 const {
   registerUser,
   getDonorsByBloodGroup,
-  getAllDonors
+  getAllDonors,
+  updateUser
 } = require("../controllers/userController");
 
+const { authenticateToken } = require("../middleware/authMiddleware");
+
 router.post("/register", registerUser);
+
+router.put("/update", authenticateToken, updateUser);
 
 router.get("/donors", getAllDonors);
 
