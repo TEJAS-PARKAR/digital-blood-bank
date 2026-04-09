@@ -2,31 +2,30 @@ import { useEffect, useState } from "react";
 import API from "../services/api";
 
 function AdminDashboard() {
+  const [pendingUsers, setPendingUsers] = useState([]);
 
-  const [requests, setRequests] = useState([]);
-
-  const fetchRequests = async () => {
+  const fetchDashboard = async () => {
     try {
-      const res = await API.get("/requests");
-      setRequests(res.data.requests);
+      const usersRes = await API.get("/users/pending");
+      setPendingUsers(usersRes.data.users);
     } catch (error) {
       console.log(error);
     }
   };
 
-  const updateStatus = async (id) => {
+  const approveUser = async (id) => {
     try {
-      await API.put(`/requests/${id}`);
-      alert("Status updated");
-      fetchRequests(); // refresh
+      await API.put(`/users/${id}/approve`);
+      alert("User approved successfully");
+      fetchDashboard();
     } catch (error) {
       console.log(error);
-      alert("Error updating status");
+      alert("Error approving user");
     }
   };
 
   useEffect(() => {
-    fetchRequests();
+    fetchDashboard();
   }, []);
 
   return (
@@ -34,20 +33,24 @@ function AdminDashboard() {
 
         <h2>Admin Dashboard</h2>
 
-        {requests.map((r) => (
-            <div className="card" key={r._id}>
-            <h3>{r.patientName}</h3>
-            <p>Blood Group: {r.bloodGroup}</p>
-            <p>Hospital: {r.hospital}</p>
-            <p>Status: {r.status}</p>
-
-            {r.status === "pending" && (
-                <button onClick={() => updateStatus(r._id)}>
-                Mark as Fulfilled
+        <div className="card">
+          <h3>Pending Registrations</h3>
+          {pendingUsers.length ? (
+            pendingUsers.map((user) => (
+              <div className="list-row" key={user._id}>
+                <strong>{user.institutionName || user.name}</strong>
+                <p>Role: {user.role}</p>
+                <p>Email: {user.email}</p>
+                <p>City: {user.city}</p>
+                <button onClick={() => approveUser(user._id)}>
+                  Approve Registration
                 </button>
-            )}
-            </div>
-        ))}
+              </div>
+            ))
+          ) : (
+            <p>No pending registrations right now.</p>
+          )}
+        </div>
 
     </div>
   );

@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 function Navbar() {
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user") || "null");
+  const isAuthenticated = Boolean(token || user);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -26,11 +27,15 @@ function Navbar() {
       <h2 className="logo">RaktRakshak</h2>
 
       <div className="links">
-        {token ? (
+        {isAuthenticated ? (
           <>
             <NavLink to="/" className="nav-link">Home</NavLink>
-            <NavLink to="/find-donor" className="nav-link">Find Donor</NavLink>
-            <NavLink to="/request-blood" className="nav-link">Request</NavLink>
+            {user?.applicationStatus !== "pending" && (
+              <NavLink to="/find-donor" className="nav-link">Find Donor</NavLink>
+            )}
+            {user?.role === "recipient" && user?.applicationStatus !== "pending" && (
+              <NavLink to="/request-blood" className="nav-link">Recipient</NavLink>
+            )}
             {user?.role === "admin" && (
               <NavLink to="/admin" className="nav-link">Admin</NavLink>
             )}

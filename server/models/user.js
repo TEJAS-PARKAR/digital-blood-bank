@@ -16,7 +16,9 @@ const userSchema = new mongoose.Schema({
 
   bloodGroup: {
     type: String,
-    required: true
+    required: function requiredBloodGroup() {
+      return this.role === "donor";
+    }
   },
 
   phone: {
@@ -36,13 +38,27 @@ const userSchema = new mongoose.Schema({
 
   city: {
     type: String,
-    required: true
+    required: function requiredCity() {
+      return this.role === "donor" || this.role === "recipient";
+    }
   },
 
   role: {
     type: String,
     enum: ["donor", "recipient", "admin"],
     default: "donor"
+  },
+
+  applicationStatus: {
+    type: String,
+    enum: ["pending", "approved", "rejected"],
+    default: function defaultApplicationStatus() {
+      return this.role === "admin" ? "approved" : "pending";
+    }
+  },
+
+  approvedAt: {
+    type: Date
   },
 
   institutionName: {

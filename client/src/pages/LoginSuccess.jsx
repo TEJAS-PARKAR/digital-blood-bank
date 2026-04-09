@@ -7,30 +7,32 @@ function LoginSuccess() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const name = searchParams.get("name");
-    const role = searchParams.get("role");
-
     const setSession = async () => {
       try {
         const meRes = await API.get("/auth/me");
 
-        if (meRes.data.success) {
+        if (meRes.data.success && meRes.data.user) {
+          localStorage.setItem("token", "cookie-session");
           localStorage.setItem("user", JSON.stringify(meRes.data.user));
 
-          navigate("/");
-          window.location.reload();
-        } else {
-          // fallback to minimal user data
-          localStorage.setItem("user", JSON.stringify({ name, role }));
+          if (meRes.data.user.applicationStatus === "pending") {
+            window.location.href = "/approval-pending";
+            return;
+          }
 
-          navigate("/");
-          window.location.reload();
+          if (meRes.data.user.role === "admin") {
+            window.location.href = "/admin";
+            return;
+          }
+
+          window.location.href = "/";
+          return;
         }
+
+        navigate("/login");
       } catch (err) {
         console.error(err);
-        localStorage.setItem("user", JSON.stringify({ name, role }));
-        navigate("/");
-        window.location.reload();
+        navigate("/login");
       }
     };
 

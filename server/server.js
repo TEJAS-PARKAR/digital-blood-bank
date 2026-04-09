@@ -30,6 +30,9 @@ app.use("/api/users", userRoutes);
 const requestRoutes = require("./routes/requestRoutes");
 app.use("/api/requests", requestRoutes);
 
+const inventoryRoutes = require("./routes/inventoryRoutes");
+app.use("/api/inventory", inventoryRoutes);
+
 const passport = require("./config/passport");
 app.use(passport.initialize());
 

@@ -20,10 +20,42 @@ router.get(
 router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
-  (req, res) => {
+  async (req, res) => {
     const { profile } = req.user;
+    const email = profile.emails?.[0]?.value?.toLowerCase();
+
+    if (!email) {
+      return res.redirect("http://localhost:5173/login");
+    }
+
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      const token = jwt.sign(
+        { id: existingUser._id, role: existingUser.role },
+        process.env.JWT_SECRET,
+        { expiresIn: "7d" }
+      );
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      res.clearCookie("googleProfile");
+      res.redirect("http://localhost:5173/login-success");
+      return;
+    }
 
     // Set cookie with profile data for profile completion
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+
     res.cookie("googleProfile", JSON.stringify(profile), {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -39,6 +71,7 @@ router.get(
 // Server-side route to resolve user from cookie token
 router.get("/me", async (req, res) => {
   const token = req.cookies?.token;
+  const googleProfile = req.cookies?.googleProfile;
 
   if (token) {
     try {
@@ -46,16 +79,42 @@ router.get("/me", async (req, res) => {
       const user = await User.findById(decoded.id).select("-__v");
 
       if (!user) {
+        if (googleProfile) {
+          const profile = JSON.parse(googleProfile);
+          return res.json({
+            success: true,
+            profile: {
+              name: profile.displayName,
+              email: profile.emails?.[0]?.value,
+              isProfileComplete: false
+            }
+          });
+        }
+
         return res.status(404).json({ success: false, message: "User not found" });
       }
 
       res.json({ success: true, user });
     } catch (err) {
+      if (googleProfile) {
+        try {
+          const profile = JSON.parse(googleProfile);
+          return res.json({
+            success: true,
+            profile: {
+              name: profile.displayName,
+              email: profile.emails?.[0]?.value,
+              isProfileComplete: false
+            }
+          });
+        } catch (parseError) {
+          return res.status(400).json({ success: false, message: "Invalid profile data" });
+        }
+      }
+
       res.status(401).json({ success: false, message: "Invalid token" });
     }
   } else {
-    // Check for googleProfile cookie for profile completion
-    const googleProfile = req.cookies?.googleProfile;
     if (googleProfile) {
       try {
         const profile = JSON.parse(googleProfile);

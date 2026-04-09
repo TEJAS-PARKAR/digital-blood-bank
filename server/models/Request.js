@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
 const requestSchema = new mongoose.Schema({
+  recipient: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  },
+
   patientName: {
     type: String,
     required: true
@@ -26,9 +31,15 @@ const requestSchema = new mongoose.Schema({
     required: true
   },
 
+  unitsRequired: {
+    type: Number,
+    default: 1,
+    min: 1
+  },
+
   status: {
     type: String,
-    enum: ["pending", "fulfilled"],
+    enum: ["pending", "fulfilled", "cancelled"],
     default: "pending"
   },
 
