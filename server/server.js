@@ -13,7 +13,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 // Middleware
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: "https://raktrakshak.vercel.app/",
   credentials: true,
 })); // Enable CORS for frontend with credentials
 app.use(cookieParser());
@@ -58,3 +58,15 @@ app.get('/auth/me', (req, res) => {
     res.status(401).json({ message: "Not logged in" });
   }
 });
+
+const session = require("express-session");
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: true,
+    sameSite: "none",
+    httpOnly: true
+  }
+}));
