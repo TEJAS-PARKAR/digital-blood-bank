@@ -9,7 +9,7 @@ function LoginSuccess() {
   useEffect(() => {
     const setSession = async () => {
       try {
-        const meRes = await API.get("/auth/me");
+        const meRes = await API.get("/api/auth/me");
 
         if (meRes.data.success && meRes.data.user) {
           localStorage.setItem("token", "cookie-session");
