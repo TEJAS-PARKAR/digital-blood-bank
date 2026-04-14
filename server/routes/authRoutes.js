@@ -13,7 +13,7 @@ router.post("/login", loginUser);
 // ✅ Google OAuth - Step 1 (redirect)
 router.get(
   "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  passport.authenticate("google", { scope: ["profile", "email"], session: false })
 );
 
 // ✅ Google OAuth - Step 2 (callback)
