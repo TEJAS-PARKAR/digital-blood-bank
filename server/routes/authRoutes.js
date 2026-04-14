@@ -3,6 +3,13 @@ const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
+const getCookieOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  path: "/"
+});
+
 const router = express.Router();
 
 const { loginUser } = require("../controllers/authController");
@@ -38,28 +45,20 @@ router.get(
       );
 
       res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        ...getCookieOptions(),
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
-      res.clearCookie("googleProfile");
+      res.clearCookie("googleProfile", getCookieOptions());
       res.redirect(`${process.env.CLIENT_URL}/login-success`);
       return;
     }
 
     // Set cookie with profile data for profile completion
-    res.clearCookie("token", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-    });
+    res.clearCookie("token", getCookieOptions());
 
     res.cookie("googleProfile", JSON.stringify(profile), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      ...getCookieOptions(),
       maxAge: 10 * 60 * 1000, // 10 minutes
     });
 
@@ -137,11 +136,8 @@ router.get("/me", async (req, res) => {
 
 // Logout route to clear cookie
 router.post("/logout", (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-  });
+  res.clearCookie("token", getCookieOptions());
+  res.clearCookie("googleProfile", getCookieOptions());
   res.json({ success: true, message: "Logged out" });
 });
 

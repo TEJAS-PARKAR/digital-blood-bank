@@ -1,6 +1,8 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
+import API from "../services/api";
+
 function Navbar() {
   const [isAuthenticated, setIsAuthenticated] = useState(
     Boolean(localStorage.getItem("token") || localStorage.getItem("user"))
@@ -14,10 +16,7 @@ function Navbar() {
       setIsAuthenticated(Boolean(localStorage.getItem("token") || localStorage.getItem("user")));
     };
     
-    // Listen for custom auth events fired by App.jsx
     window.addEventListener("auth-updated", handleAuthChange);
-    
-    // Listen for cross-tab storage changes just in case
     window.addEventListener("storage", handleAuthChange);
 
     return () => {
@@ -28,18 +27,16 @@ function Navbar() {
 
   const handleLogout = async () => {
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/api/auth/logout`, {
-        method: "POST",
-        credentials: "include",
-      });
+      await API.post("/auth/logout");
     } catch (err) {
       console.error("Logout error", err);
+    } finally {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.dispatchEvent(new Event("auth-updated"));
+      navigate("/");
+      window.location.reload();
     }
-
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/");
-    window.location.reload(); // to update state
   };
 
   return (
