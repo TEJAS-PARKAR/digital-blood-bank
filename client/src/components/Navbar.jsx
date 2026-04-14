@@ -50,6 +50,9 @@ function Navbar() {
             {user?.applicationStatus !== "pending" && (
               <NavLink to="/find-donor" className="nav-link">Find Donor</NavLink>
             )}
+            {user?.role === "donor" && user?.applicationStatus !== "pending" && (
+              <NavLink to="/active-requests" className="nav-link">Active Requests</NavLink>
+            )}
             {user?.role === "recipient" && user?.applicationStatus !== "pending" && (
               <>
                 <NavLink to="/record-donation" className="nav-link">Record Donation</NavLink>
