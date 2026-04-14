@@ -22,10 +22,7 @@ const initialRequestForm = {
 
 function RequestBlood() {
   const user = JSON.parse(localStorage.getItem("user") || "null");
-  const [inventoryForm, setInventoryForm] = useState(initialInventoryForm);
-  const [requestForm, setRequestForm] = useState(initialRequestForm);
   const [availability, setAvailability] = useState([]);
-  const [records, setRecords] = useState([]);
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,7 +35,6 @@ function RequestBlood() {
       ]);
 
       setAvailability(inventoryRes.data.availability || []);
-      setRecords(inventoryRes.data.records || []);
       setRequests(requestsRes.data.requests || []);
     } catch (error) {
       console.log(error);
@@ -52,39 +48,12 @@ function RequestBlood() {
     loadDashboard();
   }, []);
 
-  const handleInventoryChange = (e) => {
-    const { name, value } = e.target;
-    setInventoryForm((current) => ({
-      ...current,
-      [name]: value
-    }));
-  };
-
-  const handleRequestChange = (e) => {
-    const { name, value } = e.target;
-    setRequestForm((current) => ({
-      ...current,
-      [name]: value
-    }));
-  };
-
-  const submitInventoryRecord = async (e) => {
-    e.preventDefault();
-
-    try {
-      await API.post("/inventory", {
-        ...inventoryForm,
-        units: Number(inventoryForm.units)
-      });
-
-      alert("Donation record added");
-      setInventoryForm(initialInventoryForm);
-      loadDashboard();
-    } catch (error) {
-      console.log(error);
-      alert("Error saving donation record");
-    }
-  };
+        const { name, value } = e.target;
+        setRequestForm((current) => ({
+          ...current,
+          [name]: value
+        }));
+      };
 
   const submitBloodRequest = async (e) => {
     e.preventDefault();
@@ -129,59 +98,13 @@ function RequestBlood() {
     <div className="container">
       <div className="card">
         <p className="eyebrow">Recipient Workspace</p>
-        <h2>Manage blood inventory, donations, and availability</h2>
+        <h2>Manage requests and blood availability</h2>
         <p>
-          {user?.institutionName || user?.name} can record incoming donations,
-          track blood units by group, and raise requests for patients from one dashboard.
+          {user?.institutionName || user?.name} can view current blood units, and raise requests for patients from this dashboard.
         </p>
       </div>
 
-      <div className="dashboard-grid">
-        <section className="card">
-          <h3>Record Donation</h3>
-          <form onSubmit={submitInventoryRecord}>
-            <input
-              name="donorName"
-              placeholder="Donor Name"
-              value={inventoryForm.donorName}
-              onChange={handleInventoryChange}
-              required
-            />
-            <select
-              name="bloodGroup"
-              value={inventoryForm.bloodGroup}
-              onChange={handleInventoryChange}
-              required
-            >
-              <option value="">Select Blood Group</option>
-              {bloodGroups.map((group) => (
-                <option key={group} value={group}>{group}</option>
-              ))}
-            </select>
-            <input
-              name="units"
-              type="number"
-              min="1"
-              placeholder="Units"
-              value={inventoryForm.units}
-              onChange={handleInventoryChange}
-              required
-            />
-            <input
-              name="donationDate"
-              type="date"
-              value={inventoryForm.donationDate}
-              onChange={handleInventoryChange}
-            />
-            <input
-              name="notes"
-              placeholder="Notes"
-              value={inventoryForm.notes}
-              onChange={handleInventoryChange}
-            />
-            <button type="submit">Save Donation Record</button>
-          </form>
-        </section>
+      <div className="dashboard-grid" style={{ gridTemplateColumns: "1fr" }}>
 
         <section className="card">
           <h3>Create Blood Request</h3>
@@ -261,23 +184,6 @@ function RequestBlood() {
           )}
         </section>
 
-        <section className="card">
-          <h3>Donation Records</h3>
-          {loading ? (
-            <p>Loading records...</p>
-          ) : records.length ? (
-            records.map((record) => (
-              <div className="list-row" key={record._id}>
-                <strong>{record.donorName}</strong>
-                <p>{record.bloodGroup} - {record.units} units</p>
-                <p>{new Date(record.donationDate).toLocaleDateString()}</p>
-                {record.notes ? <p>{record.notes}</p> : null}
-              </div>
-            ))
-          ) : (
-            <p>No donation records added yet.</p>
-          )}
-        </section>
       </div>
 
       <section className="card">

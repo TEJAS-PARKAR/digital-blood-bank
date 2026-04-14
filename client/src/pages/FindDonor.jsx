@@ -5,6 +5,7 @@ function FindDonor() {
 
   const [bloodGroup, setBloodGroup] = useState("");
   const [donors, setDonors] = useState([]);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const handleSearch = async () => {
     if (!bloodGroup) {
@@ -15,6 +16,7 @@ function FindDonor() {
     try {
       const res = await API.get(`/users/blood/${encodeURIComponent(bloodGroup)}`);
       setDonors(res.data.donors); 
+      setHasSearched(true);
 
     } catch (error) {
       console.log(error);
@@ -39,6 +41,10 @@ function FindDonor() {
         </select>
 
         <button onClick={handleSearch}>Search</button>
+
+        {hasSearched && donors.length === 0 && (
+          <p style={{ marginTop: "1rem", color: "#666" }}>No donors found for this blood group.</p>
+        )}
 
         {donors.map((d) => (
             <div className="card" key={d._id}>

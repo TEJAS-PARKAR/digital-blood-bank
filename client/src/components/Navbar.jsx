@@ -51,7 +51,10 @@ function Navbar() {
               <NavLink to="/find-donor" className="nav-link">Find Donor</NavLink>
             )}
             {user?.role === "recipient" && user?.applicationStatus !== "pending" && (
-              <NavLink to="/request-blood" className="nav-link">Recipient</NavLink>
+              <>
+                <NavLink to="/record-donation" className="nav-link">Record Donation</NavLink>
+                <NavLink to="/request-blood" className="nav-link">Request Blood</NavLink>
+              </>
             )}
             {user?.role === "admin" && (
               <NavLink to="/admin" className="nav-link">Admin</NavLink>

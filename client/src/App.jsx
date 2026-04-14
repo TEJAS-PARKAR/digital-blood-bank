@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import LoginSuccess from "./pages/LoginSuccess";
 import FindDonor from "./pages/FindDonor";
 import RequestBlood from "./pages/RequestBlood";
+import RecordDonation from "./pages/RecordDonation";
 import AdminDashboard from "./pages/AdminDashboard";
 import ApprovalPending from "./pages/ApprovalPending";
 import Navbar from "./components/Navbar";
@@ -54,6 +55,14 @@ function App() {
           element={
             <PrivateRoute role="recipient">
               <RequestBlood />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/record-donation"
+          element={
+            <PrivateRoute role="recipient">
+              <RecordDonation />
             </PrivateRoute>
           }
         />
