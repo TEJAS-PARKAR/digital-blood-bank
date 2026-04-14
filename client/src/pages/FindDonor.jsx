@@ -7,10 +7,13 @@ function FindDonor() {
   const [donors, setDonors] = useState([]);
 
   const handleSearch = async () => {
+    if (!bloodGroup) {
+      alert("Please select a blood group first.");
+      return;
+    }
+
     try {
-
-      const res = await API.get(`/users/blood/${bloodGroup}`);
-
+      const res = await API.get(`/users/blood/${encodeURIComponent(bloodGroup)}`);
       setDonors(res.data.donors); 
 
     } catch (error) {
@@ -24,11 +27,16 @@ function FindDonor() {
 
         <h2>Find Donor</h2>
 
-        <input
-            placeholder="Enter Blood Group"
+        <select
+            className="blood-group-select"
             value={bloodGroup}
             onChange={(e) => setBloodGroup(e.target.value)}
-        />
+        >
+            <option value="">Select Blood Group</option>
+            {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((group) => (
+              <option key={group} value={group}>{group}</option>
+            ))}
+        </select>
 
         <button onClick={handleSearch}>Search</button>
 
