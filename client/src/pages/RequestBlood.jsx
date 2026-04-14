@@ -22,6 +22,7 @@ const initialRequestForm = {
 
 function RequestBlood() {
   const user = JSON.parse(localStorage.getItem("user") || "null");
+  const [requestForm, setRequestForm] = useState(initialRequestForm);
   const [availability, setAvailability] = useState([]);
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
