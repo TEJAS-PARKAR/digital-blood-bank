@@ -22,10 +22,16 @@ function App() {
         if (res.data.success && res.data.user) {
           localStorage.setItem("token", "cookie-session");
           localStorage.setItem("user", JSON.stringify(res.data.user));
+          window.dispatchEvent(new Event("auth-updated"));
+        } else {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          window.dispatchEvent(new Event("auth-updated"));
         }
       } catch (error) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        window.dispatchEvent(new Event("auth-updated"));
       }
     };
 

@@ -1,10 +1,30 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 function Navbar() {
-  const token = localStorage.getItem("token");
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    Boolean(localStorage.getItem("token") || localStorage.getItem("user"))
+  );
+  
   const user = JSON.parse(localStorage.getItem("user") || "null");
-  const isAuthenticated = Boolean(token || user);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleAuthChange = () => {
+      setIsAuthenticated(Boolean(localStorage.getItem("token") || localStorage.getItem("user")));
+    };
+    
+    // Listen for custom auth events fired by App.jsx
+    window.addEventListener("auth-updated", handleAuthChange);
+    
+    // Listen for cross-tab storage changes just in case
+    window.addEventListener("storage", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("auth-updated", handleAuthChange);
+      window.removeEventListener("storage", handleAuthChange);
+    };
+  }, []);
 
   const handleLogout = async () => {
     try {
