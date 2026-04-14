@@ -25,7 +25,7 @@ router.get(
     const email = profile.emails?.[0]?.value?.toLowerCase();
 
     if (!email) {
-      return res.redirect("http://localhost:5173/login");
+      return res.redirect(`${process.env.VITE_API_URL}/login`);
     }
 
     const existingUser = await User.findOne({ email });
@@ -45,7 +45,7 @@ router.get(
       });
 
       res.clearCookie("googleProfile");
-      res.redirect("http://localhost:5173/login-success");
+      res.redirect(`${process.env.VITE_API_URL}/login-success`);
       return;
     }
 
@@ -64,7 +64,7 @@ router.get(
     });
 
     // Redirect to register for profile completion
-    res.redirect(`http://localhost:5173/register`);
+    res.redirect(`${process.env.VITE_API_URL}/register`);
   }
 );
 
