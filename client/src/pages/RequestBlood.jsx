@@ -48,12 +48,13 @@ function RequestBlood() {
     loadDashboard();
   }, []);
 
-        const { name, value } = e.target;
-        setRequestForm((current) => ({
-          ...current,
-          [name]: value
-        }));
-      };
+  const handleRequestChange = (e) => {
+    const { name, value } = e.target;
+    setRequestForm((current) => ({
+      ...current,
+      [name]: value
+    }));
+  };
 
   const submitBloodRequest = async (e) => {
     e.preventDefault();
