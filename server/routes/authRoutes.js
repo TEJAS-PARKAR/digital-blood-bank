@@ -25,7 +25,7 @@ router.get(
     const email = profile.emails?.[0]?.value?.toLowerCase();
 
     if (!email) {
-      return res.redirect(`${process.env.VITE_API_URL}/login`);
+      return res.redirect(`${process.env.CLIENT_URL}/login`);
     }
 
     const existingUser = await User.findOne({ email });
@@ -64,7 +64,7 @@ router.get(
     });
 
     // Redirect to register for profile completion
-    res.redirect(`${process.env.VITE_API_URL}/register`);
+    res.redirect(`${process.env.CLIENT_URL}/register`);
   }
 );
 

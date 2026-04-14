@@ -12,10 +12,27 @@ mongoose.connect(process.env.MONGO_URI)
 .catch(err => console.log("Database Error:", err))
 
 // Middleware
+app.set("trust proxy", 1); // Trust Render's reverse proxy
 app.use(cors({
-  origin: "https://raktrakshak.vercel.app/",
+  origin: ["https://raktrakshak.vercel.app", "http://localhost:5173"],
   credentials: true,
 })); // Enable CORS for frontend with credentials
+
+const session = require("express-session");
+app.use(session({
+  secret: process.env.SESSION_SECRET || "fallback_secret",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "none",
+    httpOnly: true
+  }
+}));
+
+const morgan = require("morgan");
+app.use(morgan("dev"));
+
 app.use(cookieParser());
 app.use(express.json()); // Parse JSON bodies
 
@@ -42,31 +59,8 @@ app.use("/api/auth", authRoutes);
 const errorHandler = require("./middleware/errorMiddleware");
 app.use(errorHandler); // Use the error handling middleware
 
-const morgan = require("morgan");
-app.use(morgan("dev"));
-
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-app.get('/auth/me', (req, res) => {
-  if (req.user) {
-    res.json(req.user);
-  } else {
-    res.status(401).json({ message: "Not logged in" });
-  }
-});
-
-const session = require("express-session");
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: true,
-    sameSite: "none",
-    httpOnly: true
-  }
-}));
