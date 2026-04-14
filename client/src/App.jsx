@@ -24,13 +24,8 @@ function App() {
           localStorage.setItem("user", JSON.stringify(res.data.user));
         }
       } catch (error) {
-        const currentPath = window.location.pathname;
-        const keepPendingFlow = currentPath === "/register" || currentPath === "/login";
-
-        if (!keepPendingFlow) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-        }
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
       }
     };
 

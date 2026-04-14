@@ -1,10 +1,15 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 
 function Navbar() {
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user") || "null");
   const isAuthenticated = Boolean(token || user);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  if (["/login", "/register", "/login-success"].includes(location.pathname)) {
+    return null;
+  }
 
   const handleLogout = async () => {
     try {
