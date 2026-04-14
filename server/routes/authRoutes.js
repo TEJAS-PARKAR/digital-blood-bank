@@ -45,7 +45,7 @@ router.get(
       });
 
       res.clearCookie("googleProfile");
-      res.redirect(`${process.env.VITE_API_URL}/login-success`);
+      res.redirect(`${process.env.CLIENT_URL}/login-success`);
       return;
     }
 
