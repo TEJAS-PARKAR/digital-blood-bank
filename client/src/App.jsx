@@ -17,7 +17,7 @@ function App() {
   useEffect(() => {
     const syncSession = async () => {
       try {
-        const res = await API.get("/api/auth/me");
+        const res = await API.get("/auth/me");
 
         if (res.data.success && res.data.user) {
           localStorage.setItem("token", "cookie-session");

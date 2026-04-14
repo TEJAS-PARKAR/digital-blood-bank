@@ -28,7 +28,7 @@ function Register() {
   useEffect(() => {
     const fetchAuthUser = async () => {
       try {
-        const res = await API.get("/api/auth/me");
+        const res = await API.get("/auth/me");
 
         if (res.data.success && res.data.profile) {
           const profile = res.data.profile;
@@ -102,7 +102,7 @@ function Register() {
       let verifiedEmail = formData.email;
 
       if (!verifiedEmail) {
-        const meRes = await API.get("/api/auth/me");
+        const meRes = await API.get("/auth/me");
         verifiedEmail = meRes.data?.profile?.email || meRes.data?.user?.email || "";
       }
 
