@@ -50,7 +50,7 @@ function FindDonor() {
             ))}
           </select>
           <button onClick={handleSearch} disabled={loading} style={{ minWidth: "120px" }}>
-            {loading ? "Searching…" : "🔍 Search"}
+            {loading ? "Searching…" : "Search"}
           </button>
         </div>
       </div>
