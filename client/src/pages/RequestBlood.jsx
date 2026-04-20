@@ -13,9 +13,9 @@ const initialRequestForm = {
 };
 
 function statusBadge(status) {
-  if (status === "pending")   return <span className="badge badge--warning">⏳ Pending</span>;
-  if (status === "fulfilled") return <span className="badge badge--success">✅ Fulfilled</span>;
-  if (status === "cancelled") return <span className="badge badge--neutral">✕ Cancelled</span>;
+  if (status === "pending") return <span className="badge badge--warning">Pending</span>;
+  if (status === "fulfilled") return <span className="badge badge--success">Fulfilled</span>;
+  if (status === "cancelled") return <span className="badge badge--neutral">Cancelled</span>;
   return <span className="badge badge--neutral">{status}</span>;
 }
 
@@ -165,7 +165,7 @@ function RequestBlood() {
 
         {/* Blood availability */}
         <section className="card">
-          <h3 style={{ marginBottom: "18px" }}>📊 Blood Availability</h3>
+          <h3 style={{ marginBottom: "18px" }}>Blood Availability</h3>
           {loading ? (
             <div className="loading-state" style={{ padding: "32px 0" }}>
               <div className="spinner" />
@@ -194,7 +194,7 @@ function RequestBlood() {
 
       {/* My requests */}
       <section className="card">
-        <h3 style={{ marginBottom: "18px" }}>📋 Your Blood Requests</h3>
+        <h3 style={{ marginBottom: "18px" }}>Your Blood Requests</h3>
         {loading ? (
           <div className="loading-state" style={{ padding: "24px 0" }}>
             <div className="spinner" />
@@ -219,14 +219,14 @@ function RequestBlood() {
                       className="btn-sm"
                       onClick={() => updateRequestStatus(request._id, "fulfilled")}
                     >
-                      ✅ Mark Fulfilled
+                      Mark Fulfilled
                     </button>
                     <button
                       type="button"
                       className="btn-sm secondary-btn"
                       onClick={() => updateRequestStatus(request._id, "cancelled")}
                     >
-                      ✕ Cancel Request
+                      Cancel Request
                     </button>
                   </div>
                 )}
