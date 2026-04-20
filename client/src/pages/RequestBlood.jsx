@@ -3,14 +3,6 @@ import API from "../services/api";
 
 const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
-const initialInventoryForm = {
-  donorName: "",
-  bloodGroup: "",
-  units: "",
-  donationDate: "",
-  notes: ""
-};
-
 const initialRequestForm = {
   patientName: "",
   bloodGroup: "",
@@ -20,12 +12,20 @@ const initialRequestForm = {
   unitsRequired: 1
 };
 
+function statusBadge(status) {
+  if (status === "pending")   return <span className="badge badge--warning">⏳ Pending</span>;
+  if (status === "fulfilled") return <span className="badge badge--success">✅ Fulfilled</span>;
+  if (status === "cancelled") return <span className="badge badge--neutral">✕ Cancelled</span>;
+  return <span className="badge badge--neutral">{status}</span>;
+}
+
 function RequestBlood() {
   const user = JSON.parse(localStorage.getItem("user") || "null");
   const [requestForm, setRequestForm] = useState(initialRequestForm);
   const [availability, setAvailability] = useState([]);
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   const loadDashboard = async () => {
     try {
@@ -34,7 +34,6 @@ function RequestBlood() {
         API.get("/inventory/my"),
         API.get("/requests/my")
       ]);
-
       setAvailability(inventoryRes.data.availability || []);
       setRequests(requestsRes.data.requests || []);
     } catch (error) {
@@ -45,33 +44,29 @@ function RequestBlood() {
     }
   };
 
-  useEffect(() => {
-    loadDashboard();
-  }, []);
+  useEffect(() => { loadDashboard(); }, []);
 
   const handleRequestChange = (e) => {
     const { name, value } = e.target;
-    setRequestForm((current) => ({
-      ...current,
-      [name]: value
-    }));
+    setRequestForm((cur) => ({ ...cur, [name]: value }));
   };
 
   const submitBloodRequest = async (e) => {
     e.preventDefault();
-
     try {
+      setSubmitting(true);
       await API.post("/requests", {
         ...requestForm,
         unitsRequired: Number(requestForm.unitsRequired)
       });
-
       alert("Blood request created successfully");
       setRequestForm(initialRequestForm);
       loadDashboard();
     } catch (error) {
       console.log(error);
       alert("Error creating request");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -88,9 +83,10 @@ function RequestBlood() {
   if (user?.role !== "recipient") {
     return (
       <div className="container">
-        <div className="card">
-          <h2>Recipient Dashboard</h2>
-          <p>This section is available only for recipient accounts.</p>
+        <div className="card" style={{ textAlign: "center", padding: "48px" }}>
+          <span style={{ fontSize: "2.5rem" }}>🔒</span>
+          <h2 style={{ marginTop: "12px" }}>Access Restricted</h2>
+          <p>This section is only available for recipient accounts.</p>
         </div>
       </div>
     );
@@ -98,18 +94,20 @@ function RequestBlood() {
 
   return (
     <div className="container">
-      <div className="card">
+      {/* Hero */}
+      <div className="page-hero">
         <p className="eyebrow">Recipient Workspace</p>
-        <h2>Manage requests and blood availability</h2>
+        <h2>Request Blood</h2>
         <p>
-          {user?.institutionName || user?.name} can view current blood units, and raise requests for patients from this dashboard.
+          {user?.institutionName || user?.name} — raise urgent blood requests and monitor your blood availability below.
         </p>
       </div>
 
-      <div className="dashboard-grid" style={{ gridTemplateColumns: "1fr" }}>
-
+      {/* Create request + availability side by side */}
+      <div className="dashboard-grid">
+        {/* Create request form */}
         <section className="card">
-          <h3>Create Blood Request</h3>
+          <h3 style={{ marginBottom: "18px" }}>🩸 Create Blood Request</h3>
           <form onSubmit={submitBloodRequest}>
             <input
               name="patientName"
@@ -140,7 +138,7 @@ function RequestBlood() {
             />
             <input
               name="hospital"
-              placeholder="Hospital"
+              placeholder="Hospital Name"
               value={requestForm.hospital}
               onChange={handleRequestChange}
               required
@@ -154,69 +152,93 @@ function RequestBlood() {
             />
             <input
               name="contact"
-              placeholder="Contact"
+              placeholder="Contact Number"
               value={requestForm.contact}
               onChange={handleRequestChange}
               required
             />
-            <button type="submit">Submit Request</button>
+            <button type="submit" disabled={submitting} style={{ width: "100%" }}>
+              {submitting ? "Submitting…" : "Submit Request"}
+            </button>
           </form>
         </section>
-      </div>
 
-      <div className="dashboard-grid">
+        {/* Blood availability */}
         <section className="card">
-          <h3>Blood Availability</h3>
+          <h3 style={{ marginBottom: "18px" }}>📊 Blood Availability</h3>
           {loading ? (
-            <p>Loading availability...</p>
+            <div className="loading-state" style={{ padding: "32px 0" }}>
+              <div className="spinner" />
+              <p>Loading…</p>
+            </div>
           ) : availability.length ? (
             <div className="stat-list">
               {availability.map((item) => (
                 <div className="stat-item" key={item.bloodGroup}>
                   <div>
                     <strong>{item.bloodGroup}</strong>
-                    <p>{item.donorMatches} matching donors registered</p>
+                    <p>{item.donorMatches} matching donor{item.donorMatches !== 1 ? "s" : ""} registered</p>
                   </div>
-                  <div className="stat-badge">{item.totalUnits} units</div>
+                  <span className="stat-badge">{item.totalUnits} units</span>
                 </div>
               ))}
             </div>
           ) : (
-            <p>No inventory recorded yet.</p>
+            <div className="empty-state" style={{ padding: "32px 0" }}>
+              <div className="empty-state-icon">📭</div>
+              <p>No inventory recorded yet.</p>
+            </div>
           )}
         </section>
-
       </div>
 
+      {/* My requests */}
       <section className="card">
-        <h3>Your Blood Requests</h3>
+        <h3 style={{ marginBottom: "18px" }}>📋 Your Blood Requests</h3>
         {loading ? (
-          <p>Loading requests...</p>
+          <div className="loading-state" style={{ padding: "24px 0" }}>
+            <div className="spinner" />
+          </div>
         ) : requests.length ? (
-          requests.map((request) => (
-            <div className="list-row" key={request._id}>
-              <strong>{request.patientName}</strong>
-              <p>{request.bloodGroup} - {request.unitsRequired} units</p>
-              <p>{request.hospital}, {request.city}</p>
-              <p>Status: {request.status}</p>
-              {request.status === "pending" && (
-                <div className="action-row">
-                  <button type="button" onClick={() => updateRequestStatus(request._id, "fulfilled")}>
-                    Mark Fulfilled
-                  </button>
-                  <button
-                    type="button"
-                    className="secondary-btn"
-                    onClick={() => updateRequestStatus(request._id, "cancelled")}
-                  >
-                    Cancel Request
-                  </button>
+          <div>
+            {requests.map((request) => (
+              <div className="list-row" key={request._id}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px", flexWrap: "wrap" }}>
+                  <div>
+                    <strong>{request.patientName}</strong>
+                    <p>{request.bloodGroup} · {request.unitsRequired} units</p>
+                    <p>🏥 {request.hospital}, {request.city}</p>
+                    <p>📞 {request.contact}</p>
+                  </div>
+                  {statusBadge(request.status)}
                 </div>
-              )}
-            </div>
-          ))
+                {request.status === "pending" && (
+                  <div className="action-row">
+                    <button
+                      type="button"
+                      className="btn-sm"
+                      onClick={() => updateRequestStatus(request._id, "fulfilled")}
+                    >
+                      ✅ Mark Fulfilled
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-sm secondary-btn"
+                      onClick={() => updateRequestStatus(request._id, "cancelled")}
+                    >
+                      ✕ Cancel Request
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         ) : (
-          <p>No requests submitted yet.</p>
+          <div className="empty-state" style={{ padding: "32px 0" }}>
+            <div className="empty-state-icon">📭</div>
+            <h3>No Requests Yet</h3>
+            <p>Submit your first blood request using the form above.</p>
+          </div>
         )}
       </section>
     </div>

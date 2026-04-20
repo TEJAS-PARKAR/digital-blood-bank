@@ -21,7 +21,6 @@ function Register() {
   const navigate = useNavigate();
 
   const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
-
   const states = State.getStatesOfCountry("IN");
   const cities = selectedStateCode ? City.getCitiesOfState("IN", selectedStateCode) : [];
 
@@ -70,27 +69,17 @@ function Register() {
   }, []);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleLocationChange = (e) => {
     const { name, value } = e.target;
     if (name === "state") {
       const selected = states.find((item) => item.name === value);
-      setFormData({
-        ...formData,
-        state: value,
-        city: ""
-      });
+      setFormData({ ...formData, state: value, city: "" });
       setSelectedStateCode(selected?.isoCode || "");
     } else {
-      setFormData({
-        ...formData,
-        [name]: value
-      });
+      setFormData({ ...formData, [name]: value });
     }
   };
 
@@ -111,10 +100,7 @@ function Register() {
         return;
       }
 
-      const payload = {
-        ...formData,
-        email: verifiedEmail
-      };
+      const payload = { ...formData, email: verifiedEmail };
 
       const res = formMode === "update"
         ? await API.put("/users/update", payload)
@@ -137,8 +123,14 @@ function Register() {
       <div className="register-shell">
         <div className="register-panel register-panel--info">
           <p className="eyebrow">Preparing Registration</p>
-          <h2>Loading your verified Google profile...</h2>
-          <p>Please wait a moment while we bring in your email and account details.</p>
+          <h2>Loading your Google profile…</h2>
+          <p className="register-lead">Please wait a moment while we retrieve your verified account details.</p>
+        </div>
+        <div className="register-panel register-panel--form">
+          <div className="loading-state">
+            <div className="spinner" />
+            <p>Fetching profile data…</p>
+          </div>
         </div>
       </div>
     );
@@ -146,42 +138,55 @@ function Register() {
 
   return (
     <div className="register-shell">
+      {/* Left info panel */}
       <div className="register-panel register-panel--info">
         <p className="eyebrow">RaktRakshak Onboarding</p>
         <h1>Register as a donor or recipient</h1>
         <p className="register-lead">
           We use your Google account to verify identity first, then collect the details needed for admin approval.
         </p>
+
         <div className="register-highlight">
           <strong>What happens next?</strong>
           <p>Submit your details, wait for admin review, and your account will be approved within 24 hours.</p>
         </div>
+
         <div className="register-steps">
           <div className="register-step">
-            <span>1</span>
-            <p>Choose whether you are registering as a donor or recipient.</p>
+            <span className="register-step-num">1</span>
+            <div>
+              <strong style={{ color: "#fff" }}>Choose your role</strong>
+              <p>Decide whether you are registering as a donor or a recipient institution.</p>
+            </div>
           </div>
           <div className="register-step">
-            <span>2</span>
-            <p>Fill in your verified profile and contact details.</p>
+            <span className="register-step-num">2</span>
+            <div>
+              <strong style={{ color: "#fff" }}>Fill in your details</strong>
+              <p>Provide contact and location information for admin verification.</p>
+            </div>
           </div>
           <div className="register-step">
-            <span>3</span>
-            <p>Wait for admin approval before accessing the protected sections.</p>
+            <span className="register-step-num">3</span>
+            <div>
+              <strong style={{ color: "#fff" }}>Await approval</strong>
+              <p>Admin reviews your application within 24 hours before granting access.</p>
+            </div>
           </div>
         </div>
       </div>
 
+      {/* Right form panel */}
       <div className="register-panel register-panel--form">
         <div className="register-header">
           <h2>{formMode === "update" ? "Complete Your Profile" : "Finish Registration"}</h2>
-          <p>Your Google account will be used behind the scenes to verify the registration email.</p>
+          <p>Your Google account email will be used to verify this registration.</p>
         </div>
 
         {!formData.email && (
-          <div className="register-alert">
+          <div className="register-alert register-alert--info">
             <strong>Google verification required.</strong>
-            <p>Go back to login and use Continue with Google before registering.</p>
+            <p>Go back to login and use <em>Continue with Google</em> before registering.</p>
           </div>
         )}
 
@@ -193,8 +198,9 @@ function Register() {
         )}
 
         <form onSubmit={handleSubmit} className="register-form">
+          {/* Role picker */}
           <div className="role-toggle">
-            <label className={`role-card ${formData.role === "donor" ? "role-card--active" : ""}`}>
+            <label className={`role-card${formData.role === "donor" ? " role-card--active" : ""}`}>
               <input
                 type="radio"
                 name="role"
@@ -203,10 +209,12 @@ function Register() {
                 onChange={handleChange}
                 required
               />
+              <span className="role-card-icon">🩸</span>
               <span>Donor</span>
               <small>Share blood details and become available after approval.</small>
             </label>
-            <label className={`role-card ${formData.role === "recipient" ? "role-card--active" : ""}`}>
+
+            <label className={`role-card${formData.role === "recipient" ? " role-card--active" : ""}`}>
               <input
                 type="radio"
                 name="role"
@@ -215,6 +223,7 @@ function Register() {
                 onChange={handleChange}
                 required
               />
+              <span className="role-card-icon">🏥</span>
               <span>Recipient</span>
               <small>Manage requests and blood inventory for patients and institutions.</small>
             </label>
@@ -229,15 +238,17 @@ function Register() {
               required
             />
           )}
+
           {formData.role === "recipient" && (
             <input
               name="institutionName"
-              placeholder="Institution Name"
+              placeholder="Institution / Hospital Name"
               value={formData.institutionName}
               onChange={handleChange}
               required
             />
           )}
+
           {formData.role === "donor" && (
             <select
               name="bloodGroup"
@@ -251,15 +262,17 @@ function Register() {
               ))}
             </select>
           )}
+
           <input
             name="phone"
-            placeholder="Phone (10 digits)"
+            placeholder="Phone number (10 digits)"
             value={formData.phone}
             onChange={handleChange}
             pattern="[0-9]{10}"
             maxLength="10"
             required
           />
+
           <div className="register-form-grid">
             <select
               name="state"
@@ -272,6 +285,7 @@ function Register() {
                 <option key={item.isoCode} value={item.name}>{item.name}</option>
               ))}
             </select>
+
             <select
               name="city"
               value={formData.city}
@@ -286,8 +300,8 @@ function Register() {
             </select>
           </div>
 
-          <button type="submit">
-            Submit Registration
+          <button type="submit" style={{ width: "100%", marginTop: "8px" }}>
+            Submit Registration →
           </button>
         </form>
       </div>

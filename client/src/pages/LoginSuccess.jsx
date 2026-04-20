@@ -40,9 +40,15 @@ function LoginSuccess() {
   }, [navigate, searchParams]);
 
   return (
-    <div className="container">
-      <h2>Login successful</h2>
-      <p>Redirecting…</p>
+    <div className="status-shell">
+      <div className="status-card">
+        <span className="status-icon">✅</span>
+        <h2>Login Successful</h2>
+        <p>You're signed in. Redirecting you to the right place…</p>
+        <div className="loading-state" style={{ padding: "16px 0 0" }}>
+          <div className="spinner" />
+        </div>
+      </div>
     </div>
   );
 }

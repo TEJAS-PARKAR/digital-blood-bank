@@ -3,32 +3,24 @@ import API from "../services/api";
 
 function RecordDonation() {
   const user = JSON.parse(localStorage.getItem("user") || "null");
-  
+
   const [donors, setDonors] = useState([]);
   const [loading, setLoading] = useState(true);
-  
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDonor, setSelectedDonor] = useState(null);
-
-  const [inventoryForm, setInventoryForm] = useState({
-    units: "",
-    donationDate: "",
-    notes: ""
-  });
-
+  const [inventoryForm, setInventoryForm] = useState({ units: "", donationDate: "", notes: "" });
   const [records, setRecords] = useState([]);
   const [recordsLoading, setRecordsLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   const loadData = async () => {
     try {
       setLoading(true);
       setRecordsLoading(true);
-      
       const [donorsRes, inventoryRes] = await Promise.all([
         API.get("/users/donors"),
         API.get("/inventory/my")
       ]);
-
       setDonors(donorsRes.data.donors || []);
       setRecords(inventoryRes.data.records || []);
     } catch (error) {
@@ -40,21 +32,18 @@ function RecordDonation() {
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useEffect(() => { loadData(); }, []);
 
   const handleInventoryChange = (e) => {
     const { name, value } = e.target;
-    setInventoryForm((current) => ({
-      ...current,
-      [name]: value
-    }));
+    setInventoryForm((cur) => ({ ...cur, [name]: value }));
   };
 
   const filteredDonors = useMemo(() => {
     if (!searchTerm) return [];
-    return donors.filter(d => d.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    return donors.filter((d) =>
+      d.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
   }, [searchTerm, donors]);
 
   const handleSelectDonor = (donor) => {
@@ -68,8 +57,8 @@ function RecordDonation() {
       alert("Please select a registered donor first.");
       return;
     }
-
     try {
+      setSubmitting(true);
       await API.post("/inventory", {
         donorName: selectedDonor.name,
         bloodGroup: selectedDonor.bloodGroup,
@@ -77,26 +66,26 @@ function RecordDonation() {
         donationDate: inventoryForm.donationDate,
         notes: inventoryForm.notes
       });
-
       alert("Donation record added");
       setInventoryForm({ units: "", donationDate: "", notes: "" });
       setSearchTerm("");
       setSelectedDonor(null);
-      
-      // Reload records to show new entry
       const inventoryRes = await API.get("/inventory/my");
       setRecords(inventoryRes.data.records || []);
     } catch (error) {
       console.log(error);
       alert("Error saving donation record");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   if (user?.role !== "recipient") {
     return (
       <div className="container">
-        <div className="card">
-          <h2>Access Denied</h2>
+        <div className="card" style={{ textAlign: "center", padding: "48px" }}>
+          <span style={{ fontSize: "2.5rem" }}>🔒</span>
+          <h2 style={{ marginTop: "12px" }}>Access Denied</h2>
           <p>This section is available only for recipient accounts.</p>
         </div>
       </div>
@@ -105,21 +94,25 @@ function RecordDonation() {
 
   return (
     <div className="container">
-      <div className="card">
+      {/* Page hero */}
+      <div className="page-hero">
         <p className="eyebrow">Recipient Workspace</p>
         <h2>Record Blood Donations</h2>
-        <p>Log incoming blood units from registered donors and track donation history.</p>
+        <p>Log incoming blood units from registered donors and maintain your donation history.</p>
       </div>
 
       <div className="dashboard-grid">
+        {/* New donation form */}
         <section className="card">
-          <h3>Register New Donation</h3>
-          <form onSubmit={submitInventoryRecord} className="donation-form">
-            <div className="search-box" style={{ position: "relative", marginBottom: "1rem" }}>
+          <h3 style={{ marginBottom: "18px" }}>➕ Register New Donation</h3>
+          <form onSubmit={submitInventoryRecord}>
+            {/* Donor search */}
+            <div className="search-box" style={{ marginBottom: "14px" }}>
               <input
                 type="text"
-                placeholder="Search registered donor by name..."
+                placeholder="Search donor by name…"
                 value={searchTerm}
+                style={{ margin: 0 }}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
                   if (selectedDonor && e.target.value !== selectedDonor.name) {
@@ -127,33 +120,35 @@ function RecordDonation() {
                   }
                 }}
                 required
-                style={{ width: "100%", padding: "12px", border: "1px solid #ccc", borderRadius: "8px" }}
               />
               {searchTerm && !selectedDonor && (
-                <div className="dropdown-results" style={{ border: "1px solid #ccc", background: "#fff", position: "absolute", zIndex: 10, width: "100%", maxHeight: "200px", overflowY: "auto", borderRadius: "4px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)", marginTop: "4px" }}>
+                <div className="dropdown-results">
                   {filteredDonors.length > 0 ? (
-                    filteredDonors.map(d => (
-                      <div 
-                        key={d._id} 
-                        style={{ padding: "10px", cursor: "pointer", borderBottom: "1px solid #eee", background: "#fff" }}
+                    filteredDonors.map((d) => (
+                      <div
+                        key={d._id}
+                        className="dropdown-row"
                         onClick={() => handleSelectDonor(d)}
-                        className="donor-result-row"
-                        onMouseEnter={(e) => e.currentTarget.style.background = "#f0f8ff"}
-                        onMouseLeave={(e) => e.currentTarget.style.background = "#fff"}
                       >
-                        <strong>{d.name}</strong> - {d.bloodGroup}
+                        <span><strong>{d.name}</strong></span>
+                        <span className="badge badge--danger">{d.bloodGroup}</span>
                       </div>
                     ))
                   ) : (
-                    <div style={{ padding: "10px", color: "var(--danger-color)" }}>No donor found</div>
+                    <div className="dropdown-empty">No donor found</div>
                   )}
                 </div>
               )}
             </div>
 
+            {/* Selected donor chip */}
             {selectedDonor && (
-              <div style={{ marginBottom: "1rem", padding: "10px", backgroundColor: "#f9f9f9", borderRadius: "4px", border: "1px solid #ddd" }}>
-                <strong>Selected:</strong> {selectedDonor.name} <br/> <strong>Blood Group:</strong> {selectedDonor.bloodGroup}
+              <div className="selected-donor-chip">
+                <span style={{ fontSize: "1.3rem" }}>✅</span>
+                <div>
+                  <strong>Selected Donor</strong>
+                  {selectedDonor.name} &nbsp;·&nbsp; {selectedDonor.bloodGroup}
+                </div>
               </div>
             )}
 
@@ -161,47 +156,63 @@ function RecordDonation() {
               name="units"
               type="number"
               min="1"
-              placeholder="Units"
+              placeholder="Units donated"
               value={inventoryForm.units}
               onChange={handleInventoryChange}
               required
-              style={{ marginBottom: "1rem", width: "100%", padding: "12px", border: "1px solid #ccc", borderRadius: "8px" }}
             />
             <input
               name="donationDate"
               type="date"
               value={inventoryForm.donationDate}
               onChange={handleInventoryChange}
-              style={{ marginBottom: "1rem", width: "100%", padding: "12px", border: "1px solid #ccc", borderRadius: "8px" }}
             />
             <input
               name="notes"
-              placeholder="Notes"
+              placeholder="Notes (optional)"
               value={inventoryForm.notes}
               onChange={handleInventoryChange}
-              style={{ marginBottom: "1rem", width: "100%", padding: "12px", border: "1px solid #ccc", borderRadius: "8px" }}
             />
-            <button type="submit" disabled={!selectedDonor}>Save Donation Record</button>
+            <button
+              type="submit"
+              disabled={!selectedDonor || submitting}
+              style={{ width: "100%" }}
+            >
+              {submitting ? "Saving…" : "💾 Save Donation Record"}
+            </button>
           </form>
         </section>
 
+        {/* Recent records */}
         <section className="card">
-          <h3>Recent Donation Records</h3>
+          <h3 style={{ marginBottom: "18px" }}>📋 Recent Donation Records</h3>
           {recordsLoading ? (
-            <p>Loading records...</p>
+            <div className="loading-state" style={{ padding: "32px 0" }}>
+              <div className="spinner" />
+              <p>Loading records…</p>
+            </div>
           ) : records.length ? (
-            <div style={{maxHeight: "500px", overflowY: "auto"}}>
+            <div style={{ maxHeight: "520px", overflowY: "auto", display: "grid", gap: "10px" }}>
               {records.map((record) => (
                 <div className="list-row" key={record._id}>
-                  <strong>{record.donorName}</strong>
-                  <p>{record.bloodGroup} - {record.units} units</p>
-                  <p>{new Date(record.donationDate).toLocaleDateString()}</p>
-                  {record.notes ? <p>{record.notes}</p> : null}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "10px" }}>
+                    <div>
+                      <strong>{record.donorName}</strong>
+                      <p>{record.bloodGroup} · {record.units} units</p>
+                      <p>📅 {new Date(record.donationDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</p>
+                      {record.notes && <p>📝 {record.notes}</p>}
+                    </div>
+                    <span className="stat-badge">{record.units}u</span>
+                  </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p>No donation records added yet.</p>
+            <div className="empty-state" style={{ padding: "32px 0" }}>
+              <div className="empty-state-icon">📭</div>
+              <h3>No Records Yet</h3>
+              <p>Use the form to log your first donation.</p>
+            </div>
           )}
         </section>
       </div>
